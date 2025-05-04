@@ -1,0 +1,5 @@
+pandas
+pymupdf
+#camelot-py
+#ghostscript
+tabula-py
