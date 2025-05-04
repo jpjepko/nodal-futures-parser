@@ -9,12 +9,19 @@ import pandas as pd
 
 
 def main():
+    # experimental results suggest using half of cpus is optimal
+    optimal_cores = os.cpu_count() // 2
+
     # parse args
     parser = argparse.ArgumentParser(description="Parallel PDF table parser.")
-    parser.add_argument("--num-cores", type=int, required=True)
+    parser.add_argument("--num-cores", type=int, default=optimal_cores)
     parser.add_argument("--pdf-name", default="EOD_FUTURES_REPORT.PDF")
     parser.add_argument("--split-dir", default="split")
     args = parser.parse_args()
+
+    # only run when split-dir does not exist
+    if os.path.isdir(args.split_dir):
+        raise RuntimeError(f"split-dir {args.split_dir} must not exist")
 
     print(f"splitting into {args.num_cores} files...")
     split_pdf(args.pdf_name, args.num_cores, args.split_dir)
@@ -30,9 +37,10 @@ def main():
     # cleanup headers
     merged.columns = [col.replace('\r', ' ').replace('*', '') for col in merged.columns]
 
-    # either use dataframe or save as csv
+    # either use dataframe or save as csv/xlsx
     print(merged)
     #merged.to_csv("merged.csv", index=False)
+    #merged.to_excel("merged.xlsx", index=False)
 
 
 def split_pdf(fname: str, num_files: int, out_dir: str):
@@ -71,7 +79,7 @@ def parse_pdf(fpath: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Table parsed as a dataframe.
     """
-    df_list = tabula.read_pdf(fpath, pages="all", multiple_tables=True)
+    df_list = tabula.read_pdf(fpath, pages="all", multiple_tables=True, java_options=["-XX:ActiveProcessorCount=1"])
     
     # debug
     # split_doc = fitz.open(fpath)
