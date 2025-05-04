@@ -1,26 +1,27 @@
+import argparse
+from concurrent.futures import ProcessPoolExecutor
 import math
 import os
-from concurrent.futures import ProcessPoolExecutor
 
 import tabula
 import fitz # from pymupdf
 import pandas as pd
 
 
-# globals
-NUM_CORES = 16
-FILE_NAME = "EOD_FUTURES_REPORT.PDF"
-SPLIT_DIR = "split"
-
-
 def main():
-    print(f"splitting into {NUM_CORES} files...")
-    split_pdf(FILE_NAME, NUM_CORES)
+    # parse args
+    parser = argparse.ArgumentParser(description="Parallel PDF table parser.")
+    parser.add_argument("--num-cores", type=int, required=True)
+    parser.add_argument("--pdf-name", default="EOD_FUTURES_REPORT.PDF")
+    parser.add_argument("--split-dir", default="split")
+    args = parser.parse_args()
 
-    print(f"parsing on {NUM_CORES} cores...")
-    split_paths = sorted([os.path.join(SPLIT_DIR, f) for f in os.listdir(SPLIT_DIR) if f.endswith(".pdf")])
-    #parse_pdf(f"./{SPLIT_DIR}/01.pdf")
-    with ProcessPoolExecutor() as executor:
+    print(f"splitting into {args.num_cores} files...")
+    split_pdf(args.pdf_name, args.num_cores, args.split_dir)
+
+    print(f"parsing on {args.num_cores} cores...")
+    split_paths = sorted([os.path.join(args.split_dir, f) for f in os.listdir(args.split_dir) if f.endswith(".pdf")])
+    with ProcessPoolExecutor(max_workers=args.num_cores) as executor:
         res = list(executor.map(parse_pdf, split_paths))
     
     print("merging...")
@@ -34,19 +35,19 @@ def main():
     #merged.to_csv("merged.csv", index=False)
 
 
-def split_pdf(fname: str, num_files: int, out_dir: str = SPLIT_DIR):
+def split_pdf(fname: str, num_files: int, out_dir: str):
     """Split PDF fname into num_files. Outputs in out_dir.
 
     Args:
         fname (str): File name.
         num_files (int): How many split files there should be.
-        out_dir (str, optional): Where the split files go. Defaults to "split".
+        out_dir (str): Where the split files go.
     """
     doc = fitz.open(fname)
     pages_per_split = math.ceil(len(doc) / num_files)
 
     # add zero paddings so files can be sorted correctly
-    padding = len(str(NUM_CORES - 1))
+    padding = len(str(num_files - 1))
     os.mkdir(out_dir)
 
     for i in range(num_files):
