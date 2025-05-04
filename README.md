@@ -1,4 +1,4 @@
-# Parallelized Nodal Exchange EOD Futures Parser
+# Parallelized Nodal Exchange EOD Reports Parser
 
 ## Requirements
 `tabula-py` requires:
@@ -28,14 +28,15 @@ $ python3 main.py
 # silence tabula warnings to stderr
 $ python3 main.py 2>warn.log
 
-# with options
+# with command-line options
 $ python3 main.py --num-cores 12 --pdf-name "EOD_FUTURES_REPORT.PDF" --split-dir "split"
 ```
 
 ## Runtimes
 ![Graph of runtimes.](runtimes.png)
 
-Runtimes on a 12-core PC.
+Runtimes on a 12-core PC on a 1,528 page futures report.
 
 ## Extensions
 * Currently `num-cores == num-splits`, experiment with `num-cores != num-splits`.
+* Automatically fetch reports daily (not possible currently with CAPTCHA protection).
