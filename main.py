@@ -16,7 +16,7 @@ def main():
     # parse args
     parser = argparse.ArgumentParser(description="Parallel PDF table parser.")
     parser.add_argument("--num-cores", type=int, default=optimal_cores)
-    parser.add_argument("--pdf-name", default="EOD_FUTURES_REPORT.PDF")
+    parser.add_argument("--pdf-name", default="reports/EOD_FUTURES_REPORT.PDF")
     parser.add_argument("--split-dir", default="split")
     args = parser.parse_args()
 
