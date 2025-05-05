@@ -35,7 +35,7 @@ $ python3 main.py --num-cores 12 --pdf-name "EOD_FUTURES_REPORT.PDF" --split-dir
 ## Runtimes
 ![Graph of runtimes.](runtimes.png)
 
-Runtimes on a 12-core PC on a 1,528 page futures report.
+Runtimes on a 6-core PC on a 1,528 page futures report.
 
 ## Extensions
 * Currently `num-cores == num-splits`, experiment with `num-cores != num-splits`.
